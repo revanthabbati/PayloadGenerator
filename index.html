@@ -47,7 +47,7 @@
             color: #e2e8f0; 
         }
 
-        /* The Glass Panel Utility (Light & Dark) */
+        /* The Glass Panel Utility */
         .glass-panel {
             background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(24px);
@@ -111,7 +111,9 @@
         td[contenteditable="true"]:focus { outline: none; background: rgba(56, 189, 248, 0.1); border-radius: 4px; box-shadow: inset 0 0 0 1px #38bdf8; }
     </style>
 </head>
-<body class="p-4 flex h-screen gap-4 relative font-sans pb-14"> <div class="ambient-orb orb-1"></div>
+<body class="p-4 flex h-screen gap-4 relative font-sans pb-16"> 
+
+    <div class="ambient-orb orb-1"></div>
     <div class="ambient-orb orb-2"></div>
     <div class="ambient-orb orb-3"></div>
 
@@ -235,7 +237,6 @@
         </header>
 
         <section class="glass-panel rounded-3xl flex-1 flex flex-col overflow-hidden relative">
-            
             <div class="h-10 bg-black/[0.03] dark:bg-white/[0.02] border-b border-black/5 dark:border-white/5 flex items-center justify-between px-6 flex-shrink-0">
                 <div class="flex items-center space-x-2">
                     <div class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></div>
@@ -267,9 +268,9 @@
         </section>
     </main>
 
-    <footer class="fixed bottom-0 left-0 w-full h-10 glass-panel border-b-0 rounded-none border-t border-black/10 dark:border-white/10 flex items-center justify-center z-50">
+    <footer class="fixed bottom-0 left-0 w-full h-12 glass-panel border-b-0 rounded-none border-t border-black/10 dark:border-white/10 flex items-center justify-center z-50">
         <p class="text-[11px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-[0.2em] flex items-center drop-shadow-sm">
-            <i class="fas fa-code text-neonBlue mr-2 drop-shadow-md"></i> Developed by Revanth Reddy Abbati
+            <i class="fas fa-code text-neonBlue mr-2 drop-shadow-md"></i> Engineered by Revanth Reddy
         </p>
     </footer>
 
@@ -277,32 +278,24 @@
         const x2js = new X2JS();
         let lastGeneratedFlatData = null;
 
-        // Theme Toggle Logic
         function toggleTheme() {
             const html = document.documentElement;
             const icon = document.getElementById('themeIcon');
             if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
-                icon.classList.replace('fa-sun', 'fa-moon'); // Switch icon to moon for light mode
+                icon.classList.replace('fa-sun', 'fa-moon');
             } else {
                 html.classList.add('dark');
-                icon.classList.replace('fa-moon', 'fa-sun'); // Switch icon to sun for dark mode
+                icon.classList.replace('fa-moon', 'fa-sun');
             }
         }
-        
-        // Initialize Theme Icon based on current state
         window.onload = () => {
             const icon = document.getElementById('themeIcon');
-            if(document.documentElement.classList.contains('dark')) {
-                icon.classList.replace('fa-moon', 'fa-sun');
-            } else {
-                icon.classList.replace('fa-sun', 'fa-moon');
-            }
+            if(document.documentElement.classList.contains('dark')) icon.classList.replace('fa-moon', 'fa-sun');
+            else icon.classList.replace('fa-sun', 'fa-moon');
         };
 
-        function toggleUI(id, show) {
-            document.getElementById(id).classList.toggle('hidden', !show);
-        }
+        function toggleUI(id, show) { document.getElementById(id).classList.toggle('hidden', !show); }
 
         function switchTab(tab) {
             document.getElementById('view-raw').classList.toggle('hidden', tab !== 'raw');
@@ -333,7 +326,7 @@
             }
         });
 
-        // Smart Date Retainer
+        // Smart Formatters
         function formatMatchedDate(selectedDateStr, originalDateStr) {
             if(!selectedDateStr) return originalDateStr;
             let [y, m, d] = selectedDateStr.split('-');
@@ -347,15 +340,9 @@
             return `${m}-${d}-${y}`; 
         }
 
-        // Fixed Smart Order Format Generator
         function generateFormattedOrderId(formatStr) {
             if (!formatStr) return "ORD-" + Math.floor(100000 + Math.random() * 900000);
-            
-            // If literal string without formatting tags, append digits
-            if (!formatStr.includes('#') && !formatStr.includes('@')) {
-                return formatStr + Math.floor(100000 + Math.random() * 900000);
-            }
-
+            if (!formatStr.includes('#') && !formatStr.includes('@')) return formatStr + Math.floor(100000 + Math.random() * 900000);
             return formatStr.split('').map(char => {
                 if (char === '#') return Math.floor(Math.random() * 10).toString();
                 if (char === '@') return String.fromCharCode(65 + Math.floor(Math.random() * 26));
@@ -363,6 +350,7 @@
             }).join('');
         }
 
+        // Modifies the data map directly
         function modifyObject(obj, opts, orderIdMap, isItemArray = false) {
             for (let key in obj) {
                 if (typeof obj[key] === 'object' && obj[key] !== null) {
@@ -372,13 +360,12 @@
                     let origVal = obj[key] ? obj[key].toString() : "";
                     
                     if (opts.rCustomer) {
-                        if (k.includes('customer') || k.includes('name') || k.includes('ordered by') || k.includes('attn')) {
-                            obj[key] = faker.company.companyName();
-                        }
+                        if (k.includes('first') && k.includes('name')) obj[key] = faker.name.firstName();
+                        else if (k.includes('last') && k.includes('name')) obj[key] = faker.name.lastName();
+                        else if (k.includes('customer') || k.includes('name') || k.includes('ordered by') || k.includes('attn')) obj[key] = faker.company.companyName();
+                        
                         if (k.includes('address') || k.includes('street')) {
-                            if (!k.includes('city') && !k.includes('state') && !k.includes('zip') && !k.includes('postal')) {
-                                obj[key] = faker.address.streetAddress();
-                            }
+                            if (!k.includes('city') && !k.includes('state') && !k.includes('zip') && !k.includes('postal')) obj[key] = faker.address.streetAddress();
                         }
                     }
 
@@ -393,9 +380,9 @@
                     }
 
                     // Order Number Map
-                    if ((k.includes('order') || k === 'id' || k.includes('#')) && 
+                    if ((k.includes('order') || k === 'id' || k.includes('number') || k.includes('#')) && 
                         !k.includes('account') && !k.includes('stop') && !k.includes('qty') && 
-                        !k.includes('location') && !k.includes('item') && !k.includes('billing') && !k.includes('via')) {
+                        !k.includes('location') && !k.includes('item') && !k.includes('billing') && !k.includes('via') && !k.includes('phone')) {
                         
                         if (origVal.trim() !== "") {
                             if (!orderIdMap[origVal]) orderIdMap[origVal] = generateFormattedOrderId(opts.fmtOrder);
@@ -405,11 +392,84 @@
 
                     if (opts.useAcc && (k.includes('account') || k.includes('billing id'))) obj[key] = opts.valAcc;
                     if (opts.useDel && (k.includes('delivery') || k.includes('service') || k.includes('type') || k.includes('via'))) obj[key] = opts.valDel;
-                    if (opts.useDate && (k.includes('date') || k.includes('ship') || k.includes('tw1'))) {
-                        obj[key] = formatMatchedDate(opts.valDate, origVal);
+                    if (opts.useDate && (k.includes('date') || k.includes('ship') || k.includes('tw1'))) obj[key] = formatMatchedDate(opts.valDate, origVal);
+                }
+            }
+        }
+
+        // Smart Duplication Engine: correctly handles nested wrappers like <service_orders><service_order>
+        function duplicateSmartly(baseData, count, opts) {
+            if (Array.isArray(baseData)) {
+                let res = [];
+                for (let i = 0; i < count; i++) {
+                    let idMap = {};
+                    let cloneArray = JSON.parse(JSON.stringify(baseData));
+                    cloneArray.forEach(row => modifyObject(row, opts, idMap));
+                    res.push(...cloneArray);
+                }
+                return res;
+            }
+
+            let finalData = JSON.parse(JSON.stringify(baseData));
+            let keys = Object.keys(finalData);
+
+            if (keys.length === 1) {
+                let rootObj = finalData[keys[0]];
+                if (Array.isArray(rootObj)) {
+                    let template = rootObj[0] || {};
+                    let newArr = [];
+                    for(let i=0; i<count; i++) {
+                        let clone = JSON.parse(JSON.stringify(template));
+                        modifyObject(clone, opts, {});
+                        newArr.push(clone);
+                    }
+                    finalData[keys[0]] = newArr;
+                    return finalData;
+                }
+                
+                if (typeof rootObj === 'object' && rootObj !== null) {
+                    let innerKeys = Object.keys(rootObj);
+                    if (innerKeys.length === 1) {
+                        let target = rootObj[innerKeys[0]];
+                        if (Array.isArray(target)) {
+                            let template = target[0] || {};
+                            let newArr = [];
+                            for(let i=0; i<count; i++) {
+                                let clone = JSON.parse(JSON.stringify(template));
+                                modifyObject(clone, opts, {});
+                                newArr.push(clone);
+                            }
+                            rootObj[innerKeys[0]] = newArr;
+                        } else if (typeof target === 'object' && target !== null) {
+                            let newArr = [];
+                            for(let i=0; i<count; i++) {
+                                let clone = JSON.parse(JSON.stringify(target));
+                                modifyObject(clone, opts, {});
+                                newArr.push(clone);
+                            }
+                            rootObj[innerKeys[0]] = newArr;
+                        } else {
+                            let newArr = [];
+                            for(let i=0; i<count; i++) {
+                                let clone = JSON.parse(JSON.stringify(rootObj));
+                                modifyObject(clone, opts, {});
+                                newArr.push(clone);
+                            }
+                            finalData[keys[0]] = newArr;
+                        }
+                        return finalData;
                     }
                 }
             }
+            
+            // Fallback for non-standard JSON
+            let fallbackArr = [];
+            for (let i = 0; i < count; i++) {
+                let clone = JSON.parse(JSON.stringify(baseData));
+                modifyObject(clone, opts, {});
+                fallbackArr.push(clone);
+            }
+            return fallbackArr;
         }
 
         function generateData() {
@@ -439,52 +499,7 @@
                 else if (raw.startsWith('{') || raw.startsWith('[')) baseData = JSON.parse(raw);
                 else baseData = Papa.parse(raw, { header: true, skipEmptyLines: true }).data;
 
-                let finalData;
-
-                if (Array.isArray(baseData)) {
-                    finalData = [];
-                    for(let i=0; i<count; i++) {
-                        let cloneArray = JSON.parse(JSON.stringify(baseData));
-                        let idMapForIteration = {}; 
-                        cloneArray.forEach(row => modifyObject(row, opts, idMapForIteration));
-                        finalData.push(...cloneArray);
-                    }
-                } else {
-                    finalData = JSON.parse(JSON.stringify(baseData));
-                    let arrayFound = false;
-
-                    function traverseAndDuplicate(obj) {
-                        if (arrayFound) return;
-                        for (let k in obj) {
-                            if (Array.isArray(obj[k]) && obj[k].length > 0) {
-                                let template = obj[k][0];
-                                let newArr = [];
-                                for(let i=0; i<count; i++) {
-                                    let idMapForIteration = {};
-                                    let clone = JSON.parse(JSON.stringify(template));
-                                    modifyObject(clone, opts, idMapForIteration);
-                                    newArr.push(clone);
-                                }
-                                obj[k] = newArr;
-                                arrayFound = true;
-                                return;
-                            } else if (typeof obj[k] === 'object' && obj[k] !== null) traverseAndDuplicate(obj[k]);
-                        }
-                    }
-                    
-                    traverseAndDuplicate(finalData);
-
-                    if (!arrayFound) {
-                        let flatArr = [];
-                        for(let i=0; i<count; i++) {
-                            let idMapForIteration = {};
-                            let clone = JSON.parse(JSON.stringify(baseData));
-                            modifyObject(clone, opts, idMapForIteration);
-                            flatArr.push(clone);
-                        }
-                        finalData = flatArr;
-                    }
-                }
+                let finalData = duplicateSmartly(baseData, count, opts);
 
                 if (outFormat === 'json') {
                     editor.value = JSON.stringify(finalData, null, 2);
@@ -492,7 +507,8 @@
                 } else if (outFormat === 'xml') {
                     let xmlWrap = Array.isArray(finalData) ? { root: { record: finalData } } : finalData;
                     let xmlStr = x2js.json2xml_str(xmlWrap);
-                    editor.value = xmlStr.replace(/(>)(<)(\/*)/g, '$1\n$2');
+                    // FIXED REGEX to prevent eating the closing slash: $1\n$2$3
+                    editor.value = xmlStr.replace(/(>)(<)(\/*)/g, '$1\n$2$3'); 
                     editor.className = "absolute inset-0 w-full h-full bg-transparent text-slate-800 dark:text-neonPink font-mono text-[13px] p-6 focus:outline-none custom-scroll resize-none";
                 } else {
                     let flat = finalData;
@@ -510,6 +526,7 @@
             }
         }
 
+        // Table Builder
         function renderTableFromRaw() {
             const txt = document.getElementById('outputEditor').value;
             const format = document.getElementById('outputFormat').value;
@@ -525,7 +542,7 @@
                     return;
                 }
 
-                if(!data.length) return;
+                if(!data || !data.length) return;
 
                 const headers = Object.keys(data[0] || {});
                 let headStr = "<tr>";
