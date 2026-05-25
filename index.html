@@ -161,12 +161,19 @@
                 <h2 class="text-[11px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-[0.2em] flex items-center"><span class="text-neonPurple mr-2">✦</span> Randomize Fields</h2>
                 <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-2 space-y-1">
                     <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
-                        <input type="checkbox" id="randCustomer" checked class="neon-cbx">
-                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Customer Name & Address</span>
+                        <input type="checkbox" id="randName" checked class="neon-cbx">
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Customer Name</span>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
+                        <input type="checkbox" id="randAddress" class="neon-cbx">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Street Address</span>
+                            <span class="text-[10px] text-orange-500 font-medium">Keep OFF for valid routing in DT</span>
+                        </div>
                     </label>
                     <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
                         <input type="checkbox" id="randContact" checked class="neon-cbx">
-                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Phone & Email Addresses</span>
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Phone & Email</span>
                     </label>
                     <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
                         <input type="checkbox" id="randItems" checked class="neon-cbx">
@@ -268,7 +275,7 @@
                 <div class="absolute inset-4 rounded-xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-black/40 overflow-auto shadow-inner custom-scroll">
                     <table class="min-w-max w-full text-left text-sm whitespace-nowrap">
                         <thead id="tableHead" class="sticky top-0 bg-white/90 dark:bg-obsidian/90 backdrop-blur-md z-10 outline outline-1 outline-black/5 dark:outline-white/10 text-slate-700 dark:text-gray-300 font-semibold tracking-wide">
-                            </thead>
+                        </thead>
                         <tbody id="tableBody" class="divide-y divide-black/5 dark:divide-white/5 text-slate-600 dark:text-gray-400">
                             <tr><td class="p-8 text-center text-slate-400 dark:text-gray-500 italic">Generate data to initialize spreadsheet...</td></tr>
                         </tbody>
@@ -337,11 +344,11 @@
             }
         });
 
-        // Fixed to always output MM/DD/YYYY when a date is selected from the picker
+        // Always format to MM/DD/YYYY
         function formatMatchedDate(selectedDateStr, originalDateStr) {
-            if(!selectedDateStr) return originalDateStr; // Keep original if no override
+            if(!selectedDateStr) return originalDateStr;
             let [y, m, d] = selectedDateStr.split('-');
-            return `${m}/${d}/${y}`; // Force MM/DD/YYYY
+            return `${m}/${d}/${y}`; 
         }
 
         function generateFormattedOrderId(formatStr) {
@@ -354,7 +361,6 @@
             }).join('');
         }
 
-        // Modifies the data map directly
         function modifyObject(obj, opts, orderIdMap, isItemArray = false) {
             for (let key in obj) {
                 if (typeof obj[key] === 'object' && obj[key] !== null) {
@@ -363,11 +369,13 @@
                     let k = key.toLowerCase();
                     let origVal = obj[key] ? obj[key].toString() : "";
                     
-                    if (opts.rCustomer) {
+                    if (opts.rName) {
                         if (k.includes('first') && k.includes('name')) obj[key] = faker.name.firstName();
                         else if (k.includes('last') && k.includes('name')) obj[key] = faker.name.lastName();
                         else if (k.includes('customer') || k.includes('name') || k.includes('ordered by') || k.includes('attn')) obj[key] = faker.company.companyName();
-                        
+                    }
+                    
+                    if (opts.rAddress) {
                         if (k.includes('address') || k.includes('street')) {
                             if (!k.includes('city') && !k.includes('state') && !k.includes('zip') && !k.includes('postal')) obj[key] = faker.address.streetAddress();
                         }
@@ -383,7 +391,6 @@
                         if (k.includes('sku') || k.includes('code')) obj[key] = faker.random.alphaNumeric(10).toUpperCase();
                     }
 
-                    // Order Number Map
                     if ((k.includes('order') || k === 'id' || k.includes('number') || k.includes('#')) && 
                         !k.includes('account') && !k.includes('stop') && !k.includes('qty') && 
                         !k.includes('location') && !k.includes('item') && !k.includes('billing') && !k.includes('via') && !k.includes('phone')) {
@@ -402,7 +409,6 @@
             }
         }
 
-        // Smart Duplication Engine
         function duplicateSmartly(baseData, count, opts) {
             if (Array.isArray(baseData)) {
                 let res = [];
@@ -467,7 +473,6 @@
                 }
             }
             
-            // Fallback
             let fallbackArr = [];
             for (let i = 0; i < count; i++) {
                 let clone = JSON.parse(JSON.stringify(baseData));
@@ -487,7 +492,8 @@
 
             const opts = {
                 fmtOrder: document.getElementById('orderFormat').value.trim(),
-                rCustomer: document.getElementById('randCustomer').checked,
+                rName: document.getElementById('randCustomer').checked,
+                rAddress: document.getElementById('randAddress').checked,
                 rContact: document.getElementById('randContact').checked,
                 rItems: document.getElementById('randItems').checked,
                 useAcc: document.getElementById('reqAccount').checked,
@@ -532,7 +538,6 @@
             }
         }
 
-        // Table Builder
         function renderTableFromRaw() {
             const txt = document.getElementById('outputEditor').value;
             const format = document.getElementById('outputFormat').value;
