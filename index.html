@@ -128,7 +128,7 @@
             </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto px-6 py-6 space-y-8 relative">
+        <div class="flex-1 overflow-y-auto px-6 py-6 space-y-8 relative custom-scroll">
             
             <div class="space-y-3">
                 <h2 class="text-[11px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-[0.2em] flex items-center"><span class="text-neonPurple mr-2">✦</span> Source Payload</h2>
@@ -197,6 +197,16 @@
                         <input type="text" id="valDelivery" placeholder="Force delivery type..." class="glow-input w-full text-sm">
                     </div>
                 </div>
+                
+                <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-3.5 transition-all">
+                    <label class="flex items-center justify-between cursor-pointer">
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Order Status</span>
+                        <input type="checkbox" onchange="toggleUI('wrapStatus', this.checked)" id="reqStatus" class="neon-cbx">
+                    </label>
+                    <div id="wrapStatus" class="hidden mt-3 pt-3 border-t border-black/10 dark:border-white/10">
+                        <input type="text" id="valStatus" placeholder="Force status (e.g. OPEN)..." class="glow-input w-full text-sm">
+                    </div>
+                </div>
 
                 <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-3.5 transition-all">
                     <label class="flex items-center justify-between cursor-pointer">
@@ -205,6 +215,7 @@
                     </label>
                     <div id="wrapDate" class="hidden mt-3 pt-3 border-t border-black/10 dark:border-white/10">
                         <input type="date" id="valDate" class="glow-input w-full text-sm">
+                        <p class="text-[10px] text-slate-500 mt-1.5 ml-1">Will be formatted as MM/DD/YYYY</p>
                     </div>
                 </div>
             </div>
@@ -326,18 +337,11 @@
             }
         });
 
-        // Smart Formatters
+        // Fixed to always output MM/DD/YYYY when a date is selected from the picker
         function formatMatchedDate(selectedDateStr, originalDateStr) {
-            if(!selectedDateStr) return originalDateStr;
+            if(!selectedDateStr) return originalDateStr; // Keep original if no override
             let [y, m, d] = selectedDateStr.split('-');
-            if (typeof originalDateStr === 'string' && originalDateStr.length > 0) {
-                if (originalDateStr.includes('/')) return `${m}/${d}/${y}`; 
-                if (originalDateStr.includes('-')) {
-                    if (originalDateStr.split('-')[0].length === 4) return `${y}-${m}-${d}`; 
-                    return `${m}-${d}-${y}`; 
-                }
-            }
-            return `${m}-${d}-${y}`; 
+            return `${m}/${d}/${y}`; // Force MM/DD/YYYY
         }
 
         function generateFormattedOrderId(formatStr) {
@@ -392,12 +396,13 @@
 
                     if (opts.useAcc && (k.includes('account') || k.includes('billing id'))) obj[key] = opts.valAcc;
                     if (opts.useDel && (k.includes('delivery') || k.includes('service') || k.includes('type') || k.includes('via'))) obj[key] = opts.valDel;
+                    if (opts.useStatus && (k === 'status' || k === 'order_status')) obj[key] = opts.valStatus;
                     if (opts.useDate && (k.includes('date') || k.includes('ship') || k.includes('tw1'))) obj[key] = formatMatchedDate(opts.valDate, origVal);
                 }
             }
         }
 
-        // Smart Duplication Engine: correctly handles nested wrappers like <service_orders><service_order>
+        // Smart Duplication Engine
         function duplicateSmartly(baseData, count, opts) {
             if (Array.isArray(baseData)) {
                 let res = [];
@@ -462,7 +467,7 @@
                 }
             }
             
-            // Fallback for non-standard JSON
+            // Fallback
             let fallbackArr = [];
             for (let i = 0; i < count; i++) {
                 let clone = JSON.parse(JSON.stringify(baseData));
@@ -489,6 +494,8 @@
                 valAcc: document.getElementById('valAccount').value,
                 useDel: document.getElementById('reqDelivery').checked,
                 valDel: document.getElementById('valDelivery').value,
+                useStatus: document.getElementById('reqStatus').checked,
+                valStatus: document.getElementById('valStatus').value,
                 useDate: document.getElementById('reqDate').checked,
                 valDate: document.getElementById('valDate').value
             };
@@ -507,7 +514,6 @@
                 } else if (outFormat === 'xml') {
                     let xmlWrap = Array.isArray(finalData) ? { root: { record: finalData } } : finalData;
                     let xmlStr = x2js.json2xml_str(xmlWrap);
-                    // FIXED REGEX to prevent eating the closing slash: $1\n$2$3
                     editor.value = xmlStr.replace(/(>)(<)(\/*)/g, '$1\n$2$3'); 
                     editor.className = "absolute inset-0 w-full h-full bg-transparent text-slate-800 dark:text-neonPink font-mono text-[13px] p-6 focus:outline-none custom-scroll resize-none";
                 } else {
