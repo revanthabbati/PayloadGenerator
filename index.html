@@ -161,19 +161,12 @@
                 <h2 class="text-[11px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-[0.2em] flex items-center"><span class="text-neonPurple mr-2">✦</span> Randomize Fields</h2>
                 <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-2 space-y-1">
                     <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
-                        <input type="checkbox" id="randName" checked class="neon-cbx">
-                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Customer Name</span>
-                    </label>
-                    <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
-                        <input type="checkbox" id="randAddress" class="neon-cbx">
-                        <div class="flex flex-col">
-                            <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Street Address</span>
-                            <span class="text-[10px] text-orange-500 font-medium">Keep OFF for valid routing in DT</span>
-                        </div>
+                        <input type="checkbox" id="randCustomer" checked class="neon-cbx">
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Customer Name & Address</span>
                     </label>
                     <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
                         <input type="checkbox" id="randContact" checked class="neon-cbx">
-                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Phone & Email</span>
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Phone & Email Addresses</span>
                     </label>
                     <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
                         <input type="checkbox" id="randItems" checked class="neon-cbx">
@@ -204,7 +197,7 @@
                         <input type="text" id="valDelivery" placeholder="Force delivery type..." class="glow-input w-full text-sm">
                     </div>
                 </div>
-                
+
                 <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-3.5 transition-all">
                     <label class="flex items-center justify-between cursor-pointer">
                         <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Order Status</span>
@@ -361,6 +354,7 @@
             }).join('');
         }
 
+        // Fixed modifyObject using safe string split instead of .firstName()
         function modifyObject(obj, opts, orderIdMap, isItemArray = false) {
             for (let key in obj) {
                 if (typeof obj[key] === 'object' && obj[key] !== null) {
@@ -369,13 +363,19 @@
                     let k = key.toLowerCase();
                     let origVal = obj[key] ? obj[key].toString() : "";
                     
-                    if (opts.rName) {
-                        if (k.includes('first') && k.includes('name')) obj[key] = faker.name.firstName();
-                        else if (k.includes('last') && k.includes('name')) obj[key] = faker.name.lastName();
-                        else if (k.includes('customer') || k.includes('name') || k.includes('ordered by') || k.includes('attn')) obj[key] = faker.company.companyName();
-                    }
-                    
-                    if (opts.rAddress) {
+                    if (opts.rCustomer) {
+                        // Safe extraction to prevent Faker CDN bug "firstName is not a function"
+                        if (k.includes('first') && k.includes('name')) {
+                            obj[key] = faker.name.findName().split(' ')[0];
+                        }
+                        else if (k.includes('last') && k.includes('name')) {
+                            let parts = faker.name.findName().split(' ');
+                            obj[key] = parts.length > 1 ? parts[1] : parts[0];
+                        }
+                        else if (k.includes('customer') || k.includes('name') || k.includes('ordered by') || k.includes('attn')) {
+                            obj[key] = faker.company.companyName();
+                        }
+                        
                         if (k.includes('address') || k.includes('street')) {
                             if (!k.includes('city') && !k.includes('state') && !k.includes('zip') && !k.includes('postal')) obj[key] = faker.address.streetAddress();
                         }
@@ -492,8 +492,7 @@
 
             const opts = {
                 fmtOrder: document.getElementById('orderFormat').value.trim(),
-                rName: document.getElementById('randCustomer').checked,
-                rAddress: document.getElementById('randAddress').checked,
+                rCustomer: document.getElementById('randCustomer').checked,
                 rContact: document.getElementById('randContact').checked,
                 rItems: document.getElementById('randItems').checked,
                 useAcc: document.getElementById('reqAccount').checked,
