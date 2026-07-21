@@ -141,6 +141,9 @@
                     </div>
                 </div>
                 <textarea id="rawInput" rows="3" placeholder="Or paste payload..." class="glow-input w-full text-xs font-mono resize-none mt-2 custom-scroll"></textarea>
+                <button onclick="loadDefaultTemplate()" type="button" class="w-full mt-2 flex items-center justify-center gap-2 text-xs font-semibold text-neonPurple hover:text-neonBlue border border-dashed border-neonPurple/40 hover:border-neonBlue/60 rounded-xl py-2 transition">
+                    <i class="fas fa-shuffle"></i> Use Random Default Payload
+                </button>
             </div>
 
             <div class="space-y-4">
@@ -308,6 +311,15 @@
 
         function toggleUI(id, show) { document.getElementById(id).classList.toggle('hidden', !show); }
 
+        // faker.random.alphaNumeric() on this Faker CDN build ignores its length argument
+        // and always returns a single character - generate fixed-length codes ourselves instead.
+        function randomAlphaNumeric(len) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let s = '';
+            for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * chars.length)];
+            return s;
+        }
+
         function switchTab(tab) {
             document.getElementById('view-raw').classList.toggle('hidden', tab !== 'raw');
             document.getElementById('view-table').classList.toggle('hidden', tab !== 'table');
@@ -388,12 +400,13 @@
 
                     if (opts.rItems && isItemArray) {
                         if (k.includes('desc') || k.includes('product')) obj[key] = faker.commerce.productName();
-                        if (k.includes('sku') || k.includes('code')) obj[key] = faker.random.alphaNumeric(10).toUpperCase();
+                        if (k.includes('sku') || k.includes('code')) obj[key] = randomAlphaNumeric(10);
                     }
 
-                    if ((k.includes('order') || k === 'id' || k.includes('number') || k.includes('#')) && 
-                        !k.includes('account') && !k.includes('stop') && !k.includes('qty') && 
-                        !k.includes('location') && !k.includes('item') && !k.includes('billing') && !k.includes('via') && !k.includes('phone')) {
+                    if ((k.includes('order') || k === 'id' || k.includes('number') || k.includes('#')) &&
+                        !k.includes('account') && !k.includes('stop') && !k.includes('qty') &&
+                        !k.includes('location') && !k.includes('item') && !k.includes('billing') && !k.includes('via') && !k.includes('phone') &&
+                        !k.includes('ordered by') && !k.includes('sku') && !k.includes('serial')) {
                         
                         if (origVal.trim() !== "") {
                             if (!orderIdMap[origVal]) orderIdMap[origVal] = generateFormattedOrderId(opts.fmtOrder);
@@ -422,57 +435,60 @@
             }
 
             let finalData = JSON.parse(JSON.stringify(baseData));
-            let keys = Object.keys(finalData);
 
-            if (keys.length === 1) {
-                let rootObj = finalData[keys[0]];
-                if (Array.isArray(rootObj)) {
-                    let template = rootObj[0] || {};
-                    let newArr = [];
-                    for(let i=0; i<count; i++) {
-                        let clone = JSON.parse(JSON.stringify(template));
-                        modifyObject(clone, opts, {});
-                        newArr.push(clone);
+            // Breadth-first search for the first array anywhere in the tree - that's the "records"
+            // collection, regardless of how many sibling keys (code, api_key, ...) wrap around it.
+            // This is what makes real API envelopes like {code, api_key, service_orders:[...]} work,
+            // not just single-root-key shapes.
+            function findArrayContainer(root) {
+                let queue = [root];
+                while (queue.length) {
+                    let node = queue.shift();
+                    for (let k in node) {
+                        if (Array.isArray(node[k])) return { parent: node, key: k };
                     }
-                    finalData[keys[0]] = newArr;
-                    return finalData;
-                }
-                
-                if (typeof rootObj === 'object' && rootObj !== null) {
-                    let innerKeys = Object.keys(rootObj);
-                    if (innerKeys.length === 1) {
-                        let target = rootObj[innerKeys[0]];
-                        if (Array.isArray(target)) {
-                            let template = target[0] || {};
-                            let newArr = [];
-                            for(let i=0; i<count; i++) {
-                                let clone = JSON.parse(JSON.stringify(template));
-                                modifyObject(clone, opts, {});
-                                newArr.push(clone);
-                            }
-                            rootObj[innerKeys[0]] = newArr;
-                        } else if (typeof target === 'object' && target !== null) {
-                            let newArr = [];
-                            for(let i=0; i<count; i++) {
-                                let clone = JSON.parse(JSON.stringify(target));
-                                modifyObject(clone, opts, {});
-                                newArr.push(clone);
-                            }
-                            rootObj[innerKeys[0]] = newArr;
-                        } else {
-                            let newArr = [];
-                            for(let i=0; i<count; i++) {
-                                let clone = JSON.parse(JSON.stringify(rootObj));
-                                modifyObject(clone, opts, {});
-                                newArr.push(clone);
-                            }
-                            finalData[keys[0]] = newArr;
-                        }
-                        return finalData;
+                    for (let k in node) {
+                        if (typeof node[k] === 'object' && node[k] !== null) queue.push(node[k]);
                     }
                 }
+                return null;
             }
-            
+
+            let container = findArrayContainer(finalData);
+            if (container) {
+                let template = container.parent[container.key][0] || {};
+                let newArr = [];
+                for (let i = 0; i < count; i++) {
+                    let clone = JSON.parse(JSON.stringify(template));
+                    modifyObject(clone, opts, {});
+                    newArr.push(clone);
+                }
+                container.parent[container.key] = newArr;
+                return finalData;
+            }
+
+            // No array anywhere (e.g. XML with a single repeated element collapsed to one object):
+            // descend through single-key object wrappers to find the innermost record template.
+            let parent = null, key = null, node = finalData;
+            while (typeof node === 'object' && node !== null) {
+                let nodeKeys = Object.keys(node);
+                if (nodeKeys.length !== 1 || typeof node[nodeKeys[0]] !== 'object' || node[nodeKeys[0]] === null) break;
+                parent = node;
+                key = nodeKeys[0];
+                node = node[nodeKeys[0]];
+            }
+
+            if (parent) {
+                let newArr = [];
+                for (let i = 0; i < count; i++) {
+                    let clone = JSON.parse(JSON.stringify(node));
+                    modifyObject(clone, opts, {});
+                    newArr.push(clone);
+                }
+                parent[key] = newArr;
+                return finalData;
+            }
+
             let fallbackArr = [];
             for (let i = 0; i < count; i++) {
                 let clone = JSON.parse(JSON.stringify(baseData));
@@ -480,6 +496,118 @@
                 fallbackArr.push(clone);
             }
             return fallbackArr;
+        }
+
+        // Default sample payloads matching the DispatchTrack /add-order API contract & WWPS CSV import layout
+        function randomFutureDate(daysAhead) {
+            const d = new Date();
+            d.setDate(d.getDate() + Math.floor(Math.random() * daysAhead) + 1);
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${mm}/${dd}/${d.getFullYear()}`;
+        }
+
+        function buildDefaultOrder() {
+            return {
+                order_number: "100001",
+                account_name: "Acc1",
+                service_type: "Delivery",
+                description: faker.commerce.productName(),
+                status: "New",
+                delivery_date: randomFutureDate(14),
+                delivery_time_window_start: "09:00 AM",
+                delivery_time_window_end: "10:00 AM",
+                amount: parseFloat((Math.random() * 2000).toFixed(2)),
+                cod_amount: 0,
+                cube: parseFloat((Math.random() * 150).toFixed(2)),
+                weight: parseFloat((Math.random() * 300).toFixed(2)),
+                pieces: Math.floor(Math.random() * 10) + 1,
+                delivery_charge: parseFloat((Math.random() * 50).toFixed(2)),
+                taxes: parseFloat((Math.random() * 20).toFixed(2)),
+                additional_fields: { route_label: "DAILY" },
+                customer: {
+                    name: faker.name.findName(),
+                    address1: faker.address.streetAddress(),
+                    address2: "",
+                    city: faker.address.city(),
+                    state: faker.address.stateAbbr(),
+                    zip: faker.address.zipCode(),
+                    phone1: faker.phone.phoneNumberFormat(),
+                    phone2: "",
+                    phone3: "",
+                    email: faker.internet.email()
+                },
+                items: [{
+                    sku_number: randomAlphaNumeric(8),
+                    description: faker.commerce.productName(),
+                    quantity: String(Math.floor(Math.random() * 5) + 1),
+                    weight: parseFloat((Math.random() * 60).toFixed(2)),
+                    cube: parseFloat((Math.random() * 20).toFixed(2))
+                }],
+                notes: [{ body: "Sample delivery note - generated by Payload Studio" }]
+            };
+        }
+
+        function buildDefaultCsvRow() {
+            const contactName = faker.name.findName();
+            return {
+                "Order#": "100001",
+                "Branch": "Narsimha",
+                "Ship Date": randomFutureDate(14),
+                "Delivery Instructions": "",
+                "Special Instructions": "",
+                "TW1 Start": "09:00 AM",
+                "TW1 Stop": "10:00 AM",
+                "Service Type": "DELIVERY",
+                "Location ID": randomAlphaNumeric(9),
+                "Customer": faker.company.companyName(),
+                "Address Line 1": faker.address.streetAddress(),
+                "Address Line 2": "",
+                "City": faker.address.city(),
+                "State": faker.address.stateAbbr(),
+                "Postal Code": faker.address.zipCode(),
+                "Phone": faker.phone.phoneNumberFormat(),
+                "Item Description": faker.commerce.productName(),
+                "Item SKU": randomAlphaNumeric(10),
+                "Item Quantity": Math.floor(Math.random() * 5) + 1,
+                "Item Cube": parseFloat((Math.random() * 20).toFixed(2)),
+                "Item Weight": parseFloat((Math.random() * 60).toFixed(2)),
+                "UOM": "EA",
+                "Billing ID": Math.floor(1000 + Math.random() * 9000),
+                "Billing Cust Name": faker.company.companyName(),
+                "Billing Address 1": faker.address.streetAddress(),
+                "Billing Address 2": "",
+                "Billing City": faker.address.city(),
+                "Billing State": faker.address.stateAbbr(),
+                "Billing Zip": faker.address.zipCode(),
+                "Attn. To": contactName,
+                "Ordered By": contactName,
+                "Ordered By Mobile Phone": faker.phone.phoneNumberFormat(),
+                "Email Addr": faker.internet.email(),
+                "Order Qty": Math.floor(Math.random() * 5) + 1,
+                "Ship Via": "SU01",
+                "Stop#": Math.floor(Math.random() * 5) + 1
+            };
+        }
+
+        function loadDefaultTemplate() {
+            const fmt = document.getElementById('outputFormat').value;
+            const raw = document.getElementById('rawInput');
+
+            if (fmt === 'csv') {
+                raw.value = Papa.unparse([buildDefaultCsvRow()]);
+            } else if (fmt === 'xml') {
+                const xmlWrap = { service_orders: { service_order: buildDefaultOrder() } };
+                raw.value = x2js.json2xml_str(xmlWrap).replace(/(>)(<)(\/*)/g, '$1\n$2$3');
+            } else {
+                raw.value = JSON.stringify({
+                    code: "YOUR_BUSINESS_CODE",
+                    api_key: "YOUR_API_KEY",
+                    service_orders: [buildDefaultOrder()]
+                }, null, 2);
+            }
+
+            generateData();
         }
 
         function generateData() {
