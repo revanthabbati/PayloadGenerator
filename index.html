@@ -160,82 +160,16 @@
                 </div>
             </div>
 
-            <div class="space-y-3">
-                <h2 class="text-[11px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-[0.2em] flex items-center"><span class="text-neonPurple mr-2">✦</span> Randomize Fields</h2>
-                <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-2 space-y-1">
-                    <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
-                        <input type="checkbox" id="randCustomer" checked class="neon-cbx">
-                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Customer Name & Address</span>
-                    </label>
-                    <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
-                        <input type="checkbox" id="randPhone" checked class="neon-cbx">
-                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Phone Numbers</span>
-                    </label>
-                    <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
-                        <input type="checkbox" id="randEmail" checked class="neon-cbx">
-                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Email Addresses</span>
-                    </label>
-                    <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
-                        <input type="checkbox" id="randItems" checked class="neon-cbx">
-                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Line Items & SKUs</span>
-                    </label>
-                </div>
-            </div>
-
             <div class="space-y-3 pb-4">
-                <h2 class="text-[11px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-[0.2em] flex items-center"><span class="text-neonPurple mr-2">✦</span> Dynamic Overrides</h2>
-                
-                <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-3.5 transition-all">
-                    <label class="flex items-center justify-between cursor-pointer">
-                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Account Name</span>
-                        <input type="checkbox" onchange="toggleUI('wrapAcc', this.checked)" id="reqAccount" class="neon-cbx">
-                    </label>
-                    <div id="wrapAcc" class="hidden mt-3 pt-3 border-t border-black/10 dark:border-white/10">
-                        <input type="text" id="valAccount" placeholder="Force account name..." class="glow-input w-full text-sm">
-                    </div>
+                <h2 class="text-[11px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-[0.2em] flex items-center"><span class="text-neonPurple mr-2">✦</span> Field Mapper</h2>
+                <p class="text-[11px] text-slate-500 dark:text-gray-400 leading-relaxed">Analyze your payload to see every field. Choose Keep, Randomize, Remove, Auto ID, or a fixed value per field - everything else stays exactly as uploaded.</p>
+                <button onclick="detectFields()" type="button" class="w-full flex items-center justify-center gap-2 text-xs font-semibold text-white btn-neon rounded-xl py-2.5 transition">
+                    <i class="fas fa-magnifying-glass-chart"></i> Analyze Payload Fields
+                </button>
+                <div id="fieldMapperEmpty" class="text-[11px] text-slate-500 dark:text-gray-500 italic text-center p-4 border border-dashed border-black/10 dark:border-white/10 rounded-2xl">
+                    No fields analyzed yet.
                 </div>
-
-                <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-3.5 transition-all">
-                    <label class="flex items-center justify-between cursor-pointer">
-                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Delivery Type</span>
-                        <input type="checkbox" onchange="toggleUI('wrapDel', this.checked)" id="reqDelivery" class="neon-cbx">
-                    </label>
-                    <div id="wrapDel" class="hidden mt-3 pt-3 border-t border-black/10 dark:border-white/10">
-                        <input type="text" id="valDelivery" placeholder="Force delivery type..." class="glow-input w-full text-sm">
-                    </div>
-                </div>
-
-                <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-3.5 transition-all">
-                    <label class="flex items-center justify-between cursor-pointer">
-                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Order Status</span>
-                        <input type="checkbox" onchange="toggleUI('wrapStatus', this.checked)" id="reqStatus" class="neon-cbx">
-                    </label>
-                    <div id="wrapStatus" class="hidden mt-3 pt-3 border-t border-black/10 dark:border-white/10">
-                        <input type="text" id="valStatus" placeholder="Force status (e.g. OPEN)..." class="glow-input w-full text-sm">
-                    </div>
-                </div>
-
-                <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-3.5 transition-all">
-                    <label class="flex items-center justify-between cursor-pointer">
-                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Ship/Order Date</span>
-                        <input type="checkbox" onchange="toggleUI('wrapDate', this.checked)" id="reqDate" class="neon-cbx">
-                    </label>
-                    <div id="wrapDate" class="hidden mt-3 pt-3 border-t border-black/10 dark:border-white/10">
-                        <input type="date" id="valDate" class="glow-input w-full text-sm">
-                        <p class="text-[10px] text-slate-500 mt-1.5 ml-1">Will be formatted as MM/DD/YYYY</p>
-                    </div>
-                </div>
-
-                <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-3.5 transition-all">
-                    <label class="flex items-center justify-between cursor-pointer">
-                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Request Date</span>
-                        <input type="checkbox" onchange="toggleUI('wrapReqDate', this.checked)" id="reqRequestDate" class="neon-cbx">
-                    </label>
-                    <div id="wrapReqDate" class="hidden mt-3 pt-3 border-t border-black/10 dark:border-white/10">
-                        <input type="date" id="valRequestDate" class="glow-input w-full text-sm">
-                        <p class="text-[10px] text-slate-500 mt-1.5 ml-1">Applies to request/ready-to-schedule date fields, formatted as MM/DD/YYYY</p>
-                    </div>
-                </div>
+                <div id="fieldMapperList" class="space-y-2 hidden"></div>
             </div>
         </div>
     </aside>
@@ -324,8 +258,6 @@
             else icon.classList.replace('fa-sun', 'fa-moon');
         };
 
-        function toggleUI(id, show) { document.getElementById(id).classList.toggle('hidden', !show); }
-
         // faker.random.alphaNumeric() on this Faker CDN build ignores its length argument
         // and always returns a single character - generate fixed-length codes ourselves instead.
         function randomAlphaNumeric(len) {
@@ -361,6 +293,7 @@
                 if (file.name.toLowerCase().endsWith('.xml')) fmt.value = 'xml';
                 else if (file.name.toLowerCase().endsWith('.csv')) fmt.value = 'csv';
                 else fmt.value = 'json';
+                detectFields();
             }
         });
 
@@ -381,111 +314,187 @@
             }).join('');
         }
 
-        // Fixed modifyObject using safe string split instead of .firstName()
-        function modifyObject(obj, opts, orderIdMap, isItemArray = false) {
-            for (let key in obj) {
-                if (typeof obj[key] === 'object' && obj[key] !== null) {
-                    modifyObject(obj[key], opts, orderIdMap, isItemArray || key.toLowerCase().includes('item'));
+        // ---------------------------------------------------------------------------
+        // Field Mapper engine: parse the source payload, flatten it into a reviewable
+        // list of fields, let the user choose Keep/Randomize/Remove/Auto ID/Custom per
+        // field, then apply exactly those choices when duplicating records. Anything
+        // not explicitly chosen passes through byte-for-byte unchanged.
+        // ---------------------------------------------------------------------------
+
+        let fieldModel = null; // { container, recordFields, envelopeFields } from the last detectFields() run
+
+        function parseRawInput(raw) {
+            if (raw.startsWith('<')) return x2js.xml_str2json(raw);
+            if (raw.startsWith('{') || raw.startsWith('[')) return JSON.parse(raw);
+            return Papa.parse(raw, { header: true, skipEmptyLines: true }).data;
+        }
+
+        // Breadth-first search for the first array anywhere in the tree - that's the "records"
+        // collection, regardless of how many sibling keys (code, api_key, ...) wrap around it.
+        // rootKey is the top-level key of `root` that leads toward it, used to tell real
+        // envelope fields (code, api_key) apart from the structural path to the records.
+        function findArrayContainer(root) {
+            let queue = [{ node: root, rootKey: null }];
+            while (queue.length) {
+                let { node, rootKey } = queue.shift();
+                for (let k in node) {
+                    if (Array.isArray(node[k])) return { parent: node, key: k, rootKey: rootKey !== null ? rootKey : k };
+                }
+                for (let k in node) {
+                    if (typeof node[k] === 'object' && node[k] !== null) {
+                        queue.push({ node: node[k], rootKey: rootKey !== null ? rootKey : k });
+                    }
+                }
+            }
+            return null;
+        }
+
+        function flattenTemplate(node, prefix, out) {
+            for (let key in node) {
+                let val = node[key];
+                let path = prefix ? `${prefix}.${key}` : key;
+                if (Array.isArray(val)) {
+                    if (val.length && typeof val[0] === 'object' && val[0] !== null) {
+                        flattenTemplate(val[0], `${path}[]`, out);
+                    } else {
+                        out.push({ path: `${path}[]`, sample: val.length ? val[0] : '' });
+                    }
+                } else if (typeof val === 'object' && val !== null) {
+                    flattenTemplate(val, path, out);
                 } else {
-                    let k = key.toLowerCase();
-                    let origVal = obj[key] ? obj[key].toString() : "";
-                    
-                    if (opts.rCustomer) {
-                        // Safe extraction to prevent Faker CDN bug "firstName is not a function"
-                        if (k.includes('first') && k.includes('name')) {
-                            obj[key] = faker.name.findName().split(' ')[0];
-                        }
-                        else if (k.includes('last') && k.includes('name')) {
-                            let parts = faker.name.findName().split(' ');
-                            obj[key] = parts.length > 1 ? parts[1] : parts[0];
-                        }
-                        else if (k.includes('customer') || k.includes('name') || k.includes('ordered by') || k.includes('attn')) {
-                            obj[key] = faker.company.companyName();
-                        }
-                        
-                        if (k.includes('address') || k.includes('street')) {
-                            if (!k.includes('city') && !k.includes('state') && !k.includes('zip') && !k.includes('postal')) obj[key] = faker.address.streetAddress();
-                        }
-                    }
-
-                    if (opts.rPhone) {
-                        if (k.includes('phone') || k.includes('mobile')) obj[key] = faker.phone.phoneNumberFormat();
-                    }
-
-                    if (opts.rEmail) {
-                        if (k.includes('email') || k.includes('mail')) obj[key] = faker.internet.email();
-                    }
-
-                    if (opts.rItems && isItemArray) {
-                        if (k.includes('desc') || k.includes('product')) obj[key] = faker.commerce.productName();
-                        if (k.includes('sku') || k.includes('code')) obj[key] = randomAlphaNumeric(10);
-                    }
-
-                    if ((k.includes('order') || k === 'id' || k.includes('number') || k.includes('#')) &&
-                        !k.includes('account') && !k.includes('stop') && !k.includes('qty') &&
-                        !k.includes('location') && !k.includes('item') && !k.includes('billing') && !k.includes('via') && !k.includes('phone') &&
-                        !k.includes('ordered by') && !k.includes('sku') && !k.includes('serial')) {
-                        
-                        if (origVal.trim() !== "") {
-                            if (!orderIdMap[origVal]) orderIdMap[origVal] = generateFormattedOrderId(opts.fmtOrder);
-                            obj[key] = orderIdMap[origVal];
-                        }
-                    }
-
-                    if (opts.useAcc && (k.includes('account') || k.includes('billing id'))) obj[key] = opts.valAcc;
-                    let isDeliveryTypeField = k === 'service_type' || k === 'delivery_type' || k === 'via' ||
-                        (k.includes('service') && k.includes('type')) || (k.includes('delivery') && k.includes('type')) || k.includes('ship via');
-                    if (opts.useDel && isDeliveryTypeField) obj[key] = opts.valDel;
-                    if (opts.useStatus && (k === 'status' || k === 'order_status')) obj[key] = opts.valStatus;
-                    let isRequestDateField = k.includes('date') && (k.includes('request') || k.includes('ready') || k.includes('schedule_before'));
-                    if (opts.useDate && (k.includes('date') || k.includes('ship') || k.includes('tw1')) && !isRequestDateField) obj[key] = formatMatchedDate(opts.valDate, origVal);
-                    if (opts.useReqDate && isRequestDateField) obj[key] = formatMatchedDate(opts.valReqDate, origVal);
+                    out.push({ path, sample: val === null || val === undefined ? '' : val });
                 }
             }
         }
 
-        function duplicateSmartly(baseData, count, opts) {
-            if (Array.isArray(baseData)) {
-                let res = [];
+        // Field-type keyword matching must look only at the field's own leaf name, not its full
+        // dotted path - otherwise a leaf like "customer.city" would match "customer" and get
+        // treated as a name field just because it's nested inside the customer object.
+        function leafOf(path) {
+            let clean = path.replace(/\[\]$/, '');
+            let parts = clean.split('.');
+            return parts[parts.length - 1].toLowerCase();
+        }
+
+        // Best-guess default action for a freshly detected field - always reviewable/overridable in the UI.
+        function suggestDefaultAction(path) {
+            let leaf = leafOf(path);
+            let inItem = path.toLowerCase().includes('item');
+
+            if (leaf === 'order_number' || leaf.includes('order_number') || leaf === 'order#' || leaf.includes('order#')) return 'auto_id';
+            if (leaf.includes('first') && leaf.includes('name')) return 'randomize';
+            if (leaf.includes('last') && leaf.includes('name')) return 'randomize';
+            if (leaf.includes('phone') || leaf.includes('mobile')) return 'randomize';
+            if (leaf.includes('email') || leaf.includes('mail')) return 'randomize';
+            if (!inItem && (leaf.includes('customer') || leaf === 'name' || leaf.includes('ordered by') || leaf.includes('attn'))) return 'randomize';
+            if ((leaf.includes('address') || leaf.includes('street')) && !leaf.includes('city') && !leaf.includes('state') && !leaf.includes('zip') && !leaf.includes('postal')) return 'randomize';
+            if (inItem && (leaf.includes('sku') || leaf.includes('desc') || leaf.includes('product'))) return 'randomize';
+            return 'keep';
+        }
+
+        function randomizeValueFor(path, origVal) {
+            let leaf = leafOf(path);
+            if (leaf.includes('first') && leaf.includes('name')) return faker.name.findName().split(' ')[0];
+            if (leaf.includes('last') && leaf.includes('name')) {
+                let parts = faker.name.findName().split(' ');
+                return parts.length > 1 ? parts[1] : parts[0];
+            }
+            if (leaf.includes('phone') || leaf.includes('mobile')) return faker.phone.phoneNumberFormat();
+            if (leaf.includes('email') || leaf.includes('mail')) return faker.internet.email();
+            if (leaf.includes('customer') || leaf === 'name' || leaf.includes('ordered by') || leaf.includes('attn')) return faker.company.companyName();
+            if (leaf.includes('address') || leaf.includes('street')) return faker.address.streetAddress();
+            if (leaf.includes('city')) return faker.address.city();
+            if (leaf.includes('state')) return faker.address.stateAbbr();
+            if (leaf.includes('zip') || leaf.includes('postal')) return faker.address.zipCode();
+            if (leaf.includes('sku') || leaf.includes('code')) return randomAlphaNumeric(10);
+            if (leaf.includes('desc') || leaf.includes('product')) return faker.commerce.productName();
+            if (leaf.includes('date')) return randomFutureDate(14);
+            if (origVal !== '' && !isNaN(parseFloat(origVal))) return parseFloat((Math.random() * 1000).toFixed(2));
+            return randomAlphaNumeric(8);
+        }
+
+        // Applies one field action to obj[key]. `path` matches the path shown in the Field Mapper.
+        function applyAction(obj, key, action, orderIdMap, path, origVal, fmtOrder) {
+            let origStr = origVal === null || origVal === undefined ? '' : String(origVal);
+            if (action.type === 'remove') {
+                delete obj[key];
+            } else if (action.type === 'randomize') {
+                obj[key] = randomizeValueFor(path, origStr);
+            } else if (action.type === 'auto_id') {
+                if (origStr.trim() === '') {
+                    obj[key] = generateFormattedOrderId(fmtOrder);
+                } else {
+                    if (!orderIdMap[origStr]) orderIdMap[origStr] = generateFormattedOrderId(fmtOrder);
+                    obj[key] = orderIdMap[origStr];
+                }
+            } else if (action.type === 'custom') {
+                obj[key] = action.value;
+            }
+            // 'keep' (or no action registered): leave untouched
+        }
+
+        // Walks one record, applying actionsMap[path] where a path matches. Paths are relative
+        // to the record root (e.g. "customer.phone1", "items[].sku_number").
+        function applyFieldActions(obj, actionsMap, orderIdMap, prefix, fmtOrder) {
+            for (let key in obj) {
+                let val = obj[key];
+                let path = prefix ? `${prefix}.${key}` : key;
+                if (Array.isArray(val)) {
+                    if (val.length && typeof val[0] === 'object' && val[0] !== null) {
+                        val.forEach(item => applyFieldActions(item, actionsMap, orderIdMap, `${path}[]`, fmtOrder));
+                    } else {
+                        let arrPath = `${path}[]`;
+                        let action = actionsMap[arrPath];
+                        if (action) {
+                            if (action.type === 'remove') delete obj[key];
+                            else if (action.type === 'randomize') obj[key] = val.map(() => randomizeValueFor(arrPath, ''));
+                            else if (action.type === 'custom') obj[key] = [action.value];
+                        }
+                    }
+                } else if (typeof val === 'object' && val !== null) {
+                    applyFieldActions(val, actionsMap, orderIdMap, path, fmtOrder);
+                } else {
+                    let action = actionsMap[path];
+                    if (action) applyAction(obj, key, action, orderIdMap, path, val, fmtOrder);
+                }
+            }
+        }
+
+        // Applies actions to top-level sibling fields outside the records array (e.g. code, api_key).
+        // These occur once in the envelope, not once per generated record.
+        function applyEnvelopeActions(root, skipKey, actionsMap) {
+            for (let key in root) {
+                if (key === skipKey) continue;
+                let val = root[key];
+                if (typeof val !== 'object' || val === null) {
+                    let action = actionsMap[key];
+                    if (action) applyAction(root, key, action, {}, key, val, '');
+                }
+            }
+        }
+
+        function duplicateSmartly(baseData, count, actionsMap, fmtOrder) {
+            function replicateArray(sourceArray) {
+                let out = [];
                 for (let i = 0; i < count; i++) {
                     let idMap = {};
-                    let cloneArray = JSON.parse(JSON.stringify(baseData));
-                    cloneArray.forEach(row => modifyObject(row, opts, idMap));
-                    res.push(...cloneArray);
+                    let passClone = JSON.parse(JSON.stringify(sourceArray));
+                    passClone.forEach(rec => applyFieldActions(rec, actionsMap, idMap, '', fmtOrder));
+                    out.push(...passClone);
                 }
-                return res;
+                return out;
             }
 
             let finalData = JSON.parse(JSON.stringify(baseData));
 
-            // Breadth-first search for the first array anywhere in the tree - that's the "records"
-            // collection, regardless of how many sibling keys (code, api_key, ...) wrap around it.
-            // This is what makes real API envelopes like {code, api_key, service_orders:[...]} work,
-            // not just single-root-key shapes.
-            function findArrayContainer(root) {
-                let queue = [root];
-                while (queue.length) {
-                    let node = queue.shift();
-                    for (let k in node) {
-                        if (Array.isArray(node[k])) return { parent: node, key: k };
-                    }
-                    for (let k in node) {
-                        if (typeof node[k] === 'object' && node[k] !== null) queue.push(node[k]);
-                    }
-                }
-                return null;
+            if (Array.isArray(finalData)) {
+                return replicateArray(finalData);
             }
 
             let container = findArrayContainer(finalData);
             if (container) {
-                let template = container.parent[container.key][0] || {};
-                let newArr = [];
-                for (let i = 0; i < count; i++) {
-                    let clone = JSON.parse(JSON.stringify(template));
-                    modifyObject(clone, opts, {});
-                    newArr.push(clone);
-                }
-                container.parent[container.key] = newArr;
+                container.parent[container.key] = replicateArray(container.parent[container.key]);
+                applyEnvelopeActions(finalData, container.rootKey, actionsMap);
                 return finalData;
             }
 
@@ -501,23 +510,154 @@
             }
 
             if (parent) {
-                let newArr = [];
-                for (let i = 0; i < count; i++) {
-                    let clone = JSON.parse(JSON.stringify(node));
-                    modifyObject(clone, opts, {});
-                    newArr.push(clone);
-                }
-                parent[key] = newArr;
+                parent[key] = replicateArray([node]);
                 return finalData;
             }
 
-            let fallbackArr = [];
-            for (let i = 0; i < count; i++) {
-                let clone = JSON.parse(JSON.stringify(baseData));
-                modifyObject(clone, opts, {});
-                fallbackArr.push(clone);
+            return replicateArray([baseData]);
+        }
+
+        // Renders the detected fields as a reviewable, editable list. Built with DOM APIs
+        // (not innerHTML) so that field names/values coming from an untrusted uploaded file
+        // can never be interpreted as markup.
+        function renderFieldMapper(recordFields, envelopeFields) {
+            const list = document.getElementById('fieldMapperList');
+            const empty = document.getElementById('fieldMapperEmpty');
+            list.innerHTML = '';
+
+            const actionLabels = [
+                ['keep', 'Keep As-Is'],
+                ['randomize', 'Randomize'],
+                ['remove', 'Remove Field'],
+                ['auto_id', 'Auto-Generate Unique ID'],
+                ['custom', 'Custom Value']
+            ];
+
+            function addGroupLabel(text) {
+                let label = document.createElement('div');
+                label.className = 'text-[10px] font-bold text-slate-500 dark:text-gray-500 uppercase tracking-wider pt-1';
+                label.textContent = text;
+                list.appendChild(label);
             }
-            return fallbackArr;
+
+            function addFieldRow(field) {
+                let row = document.createElement('div');
+                row.className = 'field-row bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-xl p-2.5';
+                row.setAttribute('data-path', field.path);
+
+                let topLine = document.createElement('div');
+                topLine.className = 'flex items-center justify-between gap-2';
+
+                let labelWrap = document.createElement('div');
+                labelWrap.className = 'min-w-0';
+
+                let pathEl = document.createElement('div');
+                pathEl.className = 'text-xs font-mono font-semibold text-slate-700 dark:text-gray-300 truncate';
+                pathEl.textContent = field.path;
+                pathEl.title = field.path;
+
+                let sampleEl = document.createElement('div');
+                sampleEl.className = 'text-[10px] text-slate-500 dark:text-gray-500 truncate';
+                let sampleText = String(field.sample);
+                sampleEl.textContent = sampleText ? `e.g. "${sampleText}"` : '(empty)';
+                sampleEl.title = sampleText;
+
+                labelWrap.appendChild(pathEl);
+                labelWrap.appendChild(sampleEl);
+
+                let select = document.createElement('select');
+                select.className = 'field-action glow-input text-xs py-1.5 px-2 flex-shrink-0';
+                actionLabels.forEach(([value, text]) => {
+                    let opt = document.createElement('option');
+                    opt.value = value;
+                    opt.textContent = text;
+                    select.appendChild(opt);
+                });
+                select.value = suggestDefaultAction(field.path);
+
+                let customInput = document.createElement('input');
+                customInput.type = 'text';
+                customInput.className = 'field-custom-value glow-input w-full text-xs mt-2' + (select.value === 'custom' ? '' : ' hidden');
+                customInput.placeholder = 'Custom value...';
+
+                select.addEventListener('change', () => {
+                    customInput.classList.toggle('hidden', select.value !== 'custom');
+                });
+
+                topLine.appendChild(labelWrap);
+                topLine.appendChild(select);
+                row.appendChild(topLine);
+                row.appendChild(customInput);
+                list.appendChild(row);
+            }
+
+            if (envelopeFields.length) {
+                addGroupLabel('Envelope (applies once)');
+                envelopeFields.forEach(addFieldRow);
+            }
+            if (recordFields.length) {
+                addGroupLabel('Per-Record Fields');
+                recordFields.forEach(addFieldRow);
+            }
+
+            let hasFields = envelopeFields.length || recordFields.length;
+            empty.classList.toggle('hidden', hasFields);
+            list.classList.toggle('hidden', !hasFields);
+        }
+
+        function detectFields() {
+            const raw = document.getElementById('rawInput').value.trim();
+            if (!raw) return alert("Source payload is required.");
+
+            let baseData;
+            try {
+                baseData = parseRawInput(raw);
+            } catch (err) {
+                alert("Could not parse payload: " + err.message);
+                return;
+            }
+
+            let recordFields = [];
+            let envelopeFields = [];
+
+            if (Array.isArray(baseData)) {
+                flattenTemplate(baseData[0] || {}, '', recordFields);
+            } else {
+                let container = findArrayContainer(baseData);
+                if (container) {
+                    flattenTemplate(container.parent[container.key][0] || {}, '', recordFields);
+                    for (let k in baseData) {
+                        if (k === container.rootKey) continue;
+                        let val = baseData[k];
+                        if (typeof val === 'object' && val !== null) flattenTemplate(val, k, envelopeFields);
+                        else envelopeFields.push({ path: k, sample: val === null || val === undefined ? '' : val });
+                    }
+                } else {
+                    // No array anywhere - descend single-key object wrappers (XML single-item case)
+                    let node = baseData;
+                    while (typeof node === 'object' && node !== null) {
+                        let nodeKeys = Object.keys(node);
+                        if (nodeKeys.length !== 1 || typeof node[nodeKeys[0]] !== 'object' || node[nodeKeys[0]] === null) break;
+                        node = node[nodeKeys[0]];
+                    }
+                    flattenTemplate(node, '', recordFields);
+                }
+            }
+
+            fieldModel = { recordFields, envelopeFields };
+            renderFieldMapper(recordFields, envelopeFields);
+        }
+
+        function readFieldActionsMap() {
+            let map = {};
+            document.querySelectorAll('#fieldMapperList [data-path]').forEach(row => {
+                let path = row.getAttribute('data-path');
+                let select = row.querySelector('.field-action');
+                let customInput = row.querySelector('.field-custom-value');
+                if (select.value === 'keep') return;
+                map[path] = { type: select.value, value: customInput ? customInput.value : '' };
+            });
+            return map;
         }
 
         // Default sample payloads matching the DispatchTrack /add-order API contract & WWPS CSV import layout
@@ -629,6 +769,7 @@
                 }, null, 2);
             }
 
+            detectFields();
             generateData();
         }
 
@@ -636,35 +777,21 @@
             const raw = document.getElementById('rawInput').value.trim();
             const count = parseInt(document.getElementById('orderCount').value) || 1;
             const outFormat = document.getElementById('outputFormat').value;
+            const fmtOrder = document.getElementById('orderFormat').value.trim();
             const editor = document.getElementById('outputEditor');
 
             if (!raw) return alert("Source payload is required.");
 
-            const opts = {
-                fmtOrder: document.getElementById('orderFormat').value.trim(),
-                rCustomer: document.getElementById('randCustomer').checked,
-                rPhone: document.getElementById('randPhone').checked,
-                rEmail: document.getElementById('randEmail').checked,
-                rItems: document.getElementById('randItems').checked,
-                useAcc: document.getElementById('reqAccount').checked,
-                valAcc: document.getElementById('valAccount').value,
-                useDel: document.getElementById('reqDelivery').checked,
-                valDel: document.getElementById('valDelivery').value,
-                useStatus: document.getElementById('reqStatus').checked,
-                valStatus: document.getElementById('valStatus').value,
-                useDate: document.getElementById('reqDate').checked,
-                valDate: document.getElementById('valDate').value,
-                useReqDate: document.getElementById('reqRequestDate').checked,
-                valReqDate: document.getElementById('valRequestDate').value
-            };
+            // Auto-analyze on first Generate so the tool works out of the box with sensible
+            // defaults; power users can click Analyze first to review/edit before generating.
+            if (document.getElementById('fieldMapperList').classList.contains('hidden')) {
+                detectFields();
+            }
+            const actionsMap = readFieldActionsMap();
 
             try {
-                let baseData;
-                if (raw.startsWith('<')) baseData = x2js.xml_str2json(raw);
-                else if (raw.startsWith('{') || raw.startsWith('[')) baseData = JSON.parse(raw);
-                else baseData = Papa.parse(raw, { header: true, skipEmptyLines: true }).data;
-
-                let finalData = duplicateSmartly(baseData, count, opts);
+                let baseData = parseRawInput(raw);
+                let finalData = duplicateSmartly(baseData, count, actionsMap, fmtOrder);
 
                 if (outFormat === 'json') {
                     editor.value = JSON.stringify(finalData, null, 2);
