@@ -168,8 +168,12 @@
                         <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Customer Name & Address</span>
                     </label>
                     <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
-                        <input type="checkbox" id="randContact" checked class="neon-cbx">
-                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Phone & Email Addresses</span>
+                        <input type="checkbox" id="randPhone" checked class="neon-cbx">
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Phone Numbers</span>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
+                        <input type="checkbox" id="randEmail" checked class="neon-cbx">
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Email Addresses</span>
                     </label>
                     <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
                         <input type="checkbox" id="randItems" checked class="neon-cbx">
@@ -219,6 +223,17 @@
                     <div id="wrapDate" class="hidden mt-3 pt-3 border-t border-black/10 dark:border-white/10">
                         <input type="date" id="valDate" class="glow-input w-full text-sm">
                         <p class="text-[10px] text-slate-500 mt-1.5 ml-1">Will be formatted as MM/DD/YYYY</p>
+                    </div>
+                </div>
+
+                <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-3.5 transition-all">
+                    <label class="flex items-center justify-between cursor-pointer">
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Request Date</span>
+                        <input type="checkbox" onchange="toggleUI('wrapReqDate', this.checked)" id="reqRequestDate" class="neon-cbx">
+                    </label>
+                    <div id="wrapReqDate" class="hidden mt-3 pt-3 border-t border-black/10 dark:border-white/10">
+                        <input type="date" id="valRequestDate" class="glow-input w-full text-sm">
+                        <p class="text-[10px] text-slate-500 mt-1.5 ml-1">Applies to request/ready-to-schedule date fields, formatted as MM/DD/YYYY</p>
                     </div>
                 </div>
             </div>
@@ -393,8 +408,11 @@
                         }
                     }
 
-                    if (opts.rContact) {
+                    if (opts.rPhone) {
                         if (k.includes('phone') || k.includes('mobile')) obj[key] = faker.phone.phoneNumberFormat();
+                    }
+
+                    if (opts.rEmail) {
                         if (k.includes('email') || k.includes('mail')) obj[key] = faker.internet.email();
                     }
 
@@ -415,9 +433,13 @@
                     }
 
                     if (opts.useAcc && (k.includes('account') || k.includes('billing id'))) obj[key] = opts.valAcc;
-                    if (opts.useDel && (k.includes('delivery') || k.includes('service') || k.includes('type') || k.includes('via'))) obj[key] = opts.valDel;
+                    let isDeliveryTypeField = k === 'service_type' || k === 'delivery_type' || k === 'via' ||
+                        (k.includes('service') && k.includes('type')) || (k.includes('delivery') && k.includes('type')) || k.includes('ship via');
+                    if (opts.useDel && isDeliveryTypeField) obj[key] = opts.valDel;
                     if (opts.useStatus && (k === 'status' || k === 'order_status')) obj[key] = opts.valStatus;
-                    if (opts.useDate && (k.includes('date') || k.includes('ship') || k.includes('tw1'))) obj[key] = formatMatchedDate(opts.valDate, origVal);
+                    let isRequestDateField = k.includes('date') && (k.includes('request') || k.includes('ready') || k.includes('schedule_before'));
+                    if (opts.useDate && (k.includes('date') || k.includes('ship') || k.includes('tw1')) && !isRequestDateField) obj[key] = formatMatchedDate(opts.valDate, origVal);
+                    if (opts.useReqDate && isRequestDateField) obj[key] = formatMatchedDate(opts.valReqDate, origVal);
                 }
             }
         }
@@ -621,7 +643,8 @@
             const opts = {
                 fmtOrder: document.getElementById('orderFormat').value.trim(),
                 rCustomer: document.getElementById('randCustomer').checked,
-                rContact: document.getElementById('randContact').checked,
+                rPhone: document.getElementById('randPhone').checked,
+                rEmail: document.getElementById('randEmail').checked,
                 rItems: document.getElementById('randItems').checked,
                 useAcc: document.getElementById('reqAccount').checked,
                 valAcc: document.getElementById('valAccount').value,
@@ -630,7 +653,9 @@
                 useStatus: document.getElementById('reqStatus').checked,
                 valStatus: document.getElementById('valStatus').value,
                 useDate: document.getElementById('reqDate').checked,
-                valDate: document.getElementById('valDate').value
+                valDate: document.getElementById('valDate').value,
+                useReqDate: document.getElementById('reqRequestDate').checked,
+                valReqDate: document.getElementById('valRequestDate').value
             };
 
             try {
