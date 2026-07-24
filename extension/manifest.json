@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "DispatchTrack Payload Extractor",
+  "version": "1.0.0",
+  "description": "Scrape the currently open DispatchTrack order page and generate a JSON/XML test payload matching the add-order API format.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Generate Payload"
+  },
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["*://*.dispatchtrack.com/*"]
+}

@@ -418,11 +418,11 @@
         // Fixed modifyObject using safe string split instead of .firstName()
         function modifyObject(obj, opts, orderIdMap, isItemArray = false) {
             for (let key in obj) {
-                if (typeof obj[key] === 'object' && obj[key] !== null) {
+                if (typeof obj[key] === 'object' && obj[key] !== null && !isCData(obj[key])) {
                     modifyObject(obj[key], opts, orderIdMap, isItemArray || key.toLowerCase().includes('item'));
                 } else {
                     let k = key.toLowerCase();
-                    let origVal = obj[key] ? obj[key].toString() : "";
+                    let origVal = isCData(obj[key]) ? cdataText(obj[key]) : (obj[key] ? obj[key].toString() : "");
 
                     if (opts.rCustomer) {
                         // Safe extraction to prevent Faker CDN bug "firstName is not a function"
@@ -493,20 +493,39 @@
             return Papa.parse(raw, { header: true, skipEmptyLines: true }).data;
         }
 
+        // x2js wraps CDATA text nodes as { __cdata: "text", toString: fn } (or, for mixed
+        // CDATA + literal text, { __text: "...", __cdata: [part1, part2, ...] }). These must be
+        // treated as plain leaf string values everywhere - not recursed into as nested objects -
+        // otherwise every CDATA-wrapped field (very common in DispatchTrack XML exports) is
+        // invisible to both Quick Randomize and Field Mapper.
+        function isCData(val) {
+            return typeof val === 'object' && val !== null && !Array.isArray(val) && Object.prototype.hasOwnProperty.call(val, '__cdata');
+        }
+        function cdataText(val) {
+            let c = val.__cdata;
+            if (Array.isArray(c)) return c.join(val.__text !== undefined ? val.__text : '');
+            return String(c);
+        }
+
         // Breadth-first search for the first array anywhere in the tree - that's the "records"
         // collection, regardless of how many sibling keys (code, api_key, ...) wrap around it.
         // rootKey is the top-level key of `root` that leads toward it, used to tell real
         // envelope fields (code, api_key) apart from the structural path to the records.
+        // Depth-capped at 1 hop of wrapping: a records array always sits at the top of the
+        // payload (optionally behind one wrapper object). Arrays found deeper than that are
+        // sub-arrays of a SINGLE record (e.g. <service_order>'s own <items><item>...</item></items>
+        // list) and must not be mistaken for "the records to duplicate."
         function findArrayContainer(root) {
-            let queue = [{ node: root, rootKey: null }];
+            let queue = [{ node: root, rootKey: null, depth: 0 }];
             while (queue.length) {
-                let { node, rootKey } = queue.shift();
+                let { node, rootKey, depth } = queue.shift();
                 for (let k in node) {
                     if (Array.isArray(node[k])) return { parent: node, key: k, rootKey: rootKey !== null ? rootKey : k };
                 }
+                if (depth >= 1) continue;
                 for (let k in node) {
-                    if (typeof node[k] === 'object' && node[k] !== null) {
-                        queue.push({ node: node[k], rootKey: rootKey !== null ? rootKey : k });
+                    if (typeof node[k] === 'object' && node[k] !== null && !isCData(node[k])) {
+                        queue.push({ node: node[k], rootKey: rootKey !== null ? rootKey : k, depth: depth + 1 });
                     }
                 }
             }
@@ -523,6 +542,8 @@
                     } else {
                         out.push({ path: `${path}[]`, sample: val.length ? val[0] : '' });
                     }
+                } else if (isCData(val)) {
+                    out.push({ path, sample: cdataText(val) });
                 } else if (typeof val === 'object' && val !== null) {
                     flattenTemplate(val, path, out);
                 } else {
@@ -615,6 +636,10 @@
                             else if (action.type === 'custom') obj[key] = [action.value];
                         }
                     }
+                } else if (isCData(val)) {
+                    let action = actionsMap[path];
+                    if (action) applyAction(obj, key, action, orderIdMap, path, cdataText(val), fmtOrder);
+                    // else: leave the CDATA-wrapped object untouched (keep) - x2js round-trips it fine.
                 } else if (typeof val === 'object' && val !== null) {
                     applyFieldActions(val, actionsMap, orderIdMap, path, fmtOrder);
                 } else {
@@ -630,7 +655,10 @@
             for (let key in root) {
                 if (key === skipKey) continue;
                 let val = root[key];
-                if (typeof val !== 'object' || val === null) {
+                if (isCData(val)) {
+                    let action = actionsMap[key];
+                    if (action) applyAction(root, key, action, {}, key, cdataText(val), '');
+                } else if (typeof val !== 'object' || val === null) {
                     let action = actionsMap[key];
                     if (action) applyAction(root, key, action, {}, key, val, '');
                 }
@@ -671,7 +699,7 @@
             let parent = null, key = null, node = finalData;
             while (typeof node === 'object' && node !== null) {
                 let nodeKeys = Object.keys(node);
-                if (nodeKeys.length !== 1 || typeof node[nodeKeys[0]] !== 'object' || node[nodeKeys[0]] === null) break;
+                if (nodeKeys.length !== 1 || typeof node[nodeKeys[0]] !== 'object' || node[nodeKeys[0]] === null || isCData(node[nodeKeys[0]])) break;
                 parent = node;
                 key = nodeKeys[0];
                 node = node[nodeKeys[0]];
@@ -808,7 +836,8 @@
                     for (let k in baseData) {
                         if (k === container.rootKey) continue;
                         let val = baseData[k];
-                        if (typeof val === 'object' && val !== null) flattenTemplate(val, k, envelopeFields);
+                        if (isCData(val)) envelopeFields.push({ path: k, sample: cdataText(val) });
+                        else if (typeof val === 'object' && val !== null) flattenTemplate(val, k, envelopeFields);
                         else envelopeFields.push({ path: k, sample: val === null || val === undefined ? '' : val });
                     }
                 } else {
@@ -816,7 +845,7 @@
                     let node = baseData;
                     while (typeof node === 'object' && node !== null) {
                         let nodeKeys = Object.keys(node);
-                        if (nodeKeys.length !== 1 || typeof node[nodeKeys[0]] !== 'object' || node[nodeKeys[0]] === null) break;
+                        if (nodeKeys.length !== 1 || typeof node[nodeKeys[0]] !== 'object' || node[nodeKeys[0]] === null || isCData(node[nodeKeys[0]])) break;
                         node = node[nodeKeys[0]];
                     }
                     flattenTemplate(node, '', recordFields);
@@ -952,6 +981,19 @@
             generateData();
         }
 
+        // A duplicated single-record payload with no natural plural wrapper (e.g. a bare
+        // <service_order> root, no enclosing <service_orders>) would otherwise serialize as
+        // N sibling root elements once count > 1 - not valid XML (a document needs exactly one
+        // root) and liable to break re-import. Wrap under a synthetic <root> whenever any
+        // top-level property is an array, which is exactly the case that produces repeated
+        // top-level tags in x2js's serializer.
+        function makeXmlSafe(data) {
+            if (Array.isArray(data)) return { root: { record: data } };
+            if (typeof data !== 'object' || data === null) return data;
+            let hasTopLevelArray = Object.keys(data).some(k => Array.isArray(data[k]));
+            return hasTopLevelArray ? { root: data } : data;
+        }
+
         function generateData() {
             const raw = document.getElementById('rawInput').value.trim();
             const count = parseInt(document.getElementById('orderCount').value) || 1;
@@ -998,7 +1040,7 @@
                     editor.value = JSON.stringify(finalData, null, 2);
                     editor.className = "absolute inset-0 w-full h-full bg-transparent text-slate-800 dark:text-neonPurple font-mono text-[13px] p-6 focus:outline-none custom-scroll resize-none";
                 } else if (outFormat === 'xml') {
-                    let xmlWrap = Array.isArray(finalData) ? { root: { record: finalData } } : finalData;
+                    let xmlWrap = makeXmlSafe(finalData);
                     let xmlStr = x2js.json2xml_str(xmlWrap);
                     editor.value = xmlStr.replace(/(>)(<)(\/*)/g, '$1\n$2$3'); 
                     editor.className = "absolute inset-0 w-full h-full bg-transparent text-slate-800 dark:text-neonPink font-mono text-[13px] p-6 focus:outline-none custom-scroll resize-none";

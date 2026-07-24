@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>DT Payload Extractor</title>
+<style>
+    :root {
+        color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    body {
+        width: 420px;
+        margin: 0;
+        background: #050508;
+        color: #e2e8f0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        padding: 14px;
+    }
+    h1 {
+        font-size: 14px;
+        font-weight: 700;
+        margin: 0 0 2px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    h1 .badge {
+        width: 22px; height: 22px; border-radius: 8px;
+        background: linear-gradient(135deg, #a855f7 0%, #38bdf8 100%);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px; font-weight: 800; color: white; flex-shrink: 0;
+    }
+    .sub {
+        font-size: 11px; color: #64748b; margin: 0 0 12px 0;
+    }
+    .row {
+        display: flex; gap: 8px; margin-bottom: 10px;
+    }
+    select, button {
+        font-family: inherit;
+        font-size: 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.06);
+        color: #e2e8f0;
+        padding: 8px 10px;
+        cursor: pointer;
+    }
+    select { flex: 1; }
+    button.primary {
+        flex: 2;
+        background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%);
+        border: none;
+        color: white;
+        font-weight: 700;
+    }
+    button.primary:hover { box-shadow: 0 0 18px rgba(56,189,248,0.5); }
+    button.secondary { flex: 1; }
+    #status {
+        font-size: 11px;
+        color: #f59e0b;
+        min-height: 14px;
+        margin-bottom: 8px;
+    }
+    textarea {
+        width: 100%;
+        height: 260px;
+        resize: vertical;
+        background: rgba(0,0,0,0.4);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 10px;
+        color: #38bdf8;
+        font-family: 'JetBrains Mono', Consolas, monospace;
+        font-size: 11px;
+        padding: 10px;
+    }
+    .actions {
+        display: flex; gap: 8px; margin-top: 8px;
+    }
+    details {
+        margin-top: 10px;
+        font-size: 11px;
+        color: #94a3b8;
+    }
+    details summary { cursor: pointer; }
+    #debugOut {
+        margin-top: 6px;
+        max-height: 140px;
+        overflow: auto;
+        background: rgba(0,0,0,0.3);
+        border-radius: 8px;
+        padding: 8px;
+        font-family: 'JetBrains Mono', Consolas, monospace;
+        white-space: pre-wrap;
+    }
+</style>
+</head>
+<body>
+    <h1><span class="badge">DT</span> Payload Extractor</h1>
+    <p class="sub">Open a DispatchTrack order page, then generate a test payload from it.</p>
+
+    <div class="row">
+        <select id="format">
+            <option value="json">Output: JSON</option>
+            <option value="xml">Output: XML</option>
+        </select>
+        <button class="primary" id="generateBtn">Generate Payload</button>
+    </div>
+
+    <div id="status"></div>
+
+    <textarea id="output" placeholder="// Click Generate Payload while a DispatchTrack order page is open..." spellcheck="false"></textarea>
+
+    <div class="actions">
+        <button class="secondary" id="copyBtn">Copy</button>
+        <button class="secondary" id="downloadBtn">Download</button>
+    </div>
+
+    <details>
+        <summary>Debug: raw scraped fields</summary>
+        <div id="debugOut">(nothing scraped yet)</div>
+    </details>
+
+    <script src="popup.js"></script>
+</body>
+</html>
