@@ -160,7 +160,94 @@
                 </div>
             </div>
 
+            <div class="space-y-3">
+                <div class="flex items-center space-x-2 bg-black/10 dark:bg-black/40 p-1.5 rounded-xl border border-black/5 dark:border-white/10">
+                    <button onclick="switchMode('quick')" id="mode-quick" class="flex-1 px-3 py-2 text-xs font-semibold rounded-lg bg-white shadow-sm text-slate-800 dark:bg-white/10 dark:text-white transition">Quick Randomize</button>
+                    <button onclick="switchMode('fieldmapper')" id="mode-fieldmapper" class="flex-1 px-3 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-white transition">Field Mapper</button>
+                </div>
+            </div>
+
+            <div id="modeQuickPanel">
+            <div class="space-y-3">
+                <h2 class="text-[11px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-[0.2em] flex items-center"><span class="text-neonPurple mr-2">✦</span> Randomize Fields</h2>
+                <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-2 space-y-1">
+                    <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
+                        <input type="checkbox" id="randCustomer" checked class="neon-cbx">
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Customer Name & Address</span>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
+                        <input type="checkbox" id="randPhone" checked class="neon-cbx">
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Phone Numbers</span>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
+                        <input type="checkbox" id="randEmail" checked class="neon-cbx">
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Email Addresses</span>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer p-2.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition">
+                        <input type="checkbox" id="randItems" checked class="neon-cbx">
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Line Items & SKUs</span>
+                    </label>
+                </div>
+            </div>
+
             <div class="space-y-3 pb-4">
+                <h2 class="text-[11px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-[0.2em] flex items-center"><span class="text-neonPurple mr-2">✦</span> Dynamic Overrides</h2>
+
+                <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-3.5 transition-all">
+                    <label class="flex items-center justify-between cursor-pointer">
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Account Name</span>
+                        <input type="checkbox" onchange="toggleUI('wrapAcc', this.checked)" id="reqAccount" class="neon-cbx">
+                    </label>
+                    <div id="wrapAcc" class="hidden mt-3 pt-3 border-t border-black/10 dark:border-white/10">
+                        <input type="text" id="valAccount" placeholder="Force account name..." class="glow-input w-full text-sm">
+                    </div>
+                </div>
+
+                <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-3.5 transition-all">
+                    <label class="flex items-center justify-between cursor-pointer">
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Delivery Type</span>
+                        <input type="checkbox" onchange="toggleUI('wrapDel', this.checked)" id="reqDelivery" class="neon-cbx">
+                    </label>
+                    <div id="wrapDel" class="hidden mt-3 pt-3 border-t border-black/10 dark:border-white/10">
+                        <input type="text" id="valDelivery" placeholder="Force delivery type..." class="glow-input w-full text-sm">
+                    </div>
+                </div>
+
+                <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-3.5 transition-all">
+                    <label class="flex items-center justify-between cursor-pointer">
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Order Status</span>
+                        <input type="checkbox" onchange="toggleUI('wrapStatus', this.checked)" id="reqStatus" class="neon-cbx">
+                    </label>
+                    <div id="wrapStatus" class="hidden mt-3 pt-3 border-t border-black/10 dark:border-white/10">
+                        <input type="text" id="valStatus" placeholder="Force status (e.g. OPEN)..." class="glow-input w-full text-sm">
+                    </div>
+                </div>
+
+                <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-3.5 transition-all">
+                    <label class="flex items-center justify-between cursor-pointer">
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Ship/Order Date</span>
+                        <input type="checkbox" onchange="toggleUI('wrapDate', this.checked)" id="reqDate" class="neon-cbx">
+                    </label>
+                    <div id="wrapDate" class="hidden mt-3 pt-3 border-t border-black/10 dark:border-white/10">
+                        <input type="date" id="valDate" class="glow-input w-full text-sm">
+                        <p class="text-[10px] text-slate-500 mt-1.5 ml-1">Will be formatted as MM/DD/YYYY</p>
+                    </div>
+                </div>
+
+                <div class="bg-black/5 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl p-3.5 transition-all">
+                    <label class="flex items-center justify-between cursor-pointer">
+                        <span class="text-sm font-medium text-slate-700 dark:text-gray-300">Request Date</span>
+                        <input type="checkbox" onchange="toggleUI('wrapReqDate', this.checked)" id="reqRequestDate" class="neon-cbx">
+                    </label>
+                    <div id="wrapReqDate" class="hidden mt-3 pt-3 border-t border-black/10 dark:border-white/10">
+                        <input type="date" id="valRequestDate" class="glow-input w-full text-sm">
+                        <p class="text-[10px] text-slate-500 mt-1.5 ml-1">Applies to request/ready-to-schedule date fields, formatted as MM/DD/YYYY</p>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <div id="modeFieldMapperPanel" class="hidden space-y-3 pb-4">
                 <h2 class="text-[11px] font-bold text-slate-500 dark:text-gray-400 uppercase tracking-[0.2em] flex items-center"><span class="text-neonPurple mr-2">✦</span> Field Mapper</h2>
                 <p class="text-[11px] text-slate-500 dark:text-gray-400 leading-relaxed">Analyze your payload to see every field. Choose Keep, Randomize, Remove, Auto ID, or a fixed value per field - everything else stays exactly as uploaded.</p>
                 <button onclick="detectFields()" type="button" class="w-full flex items-center justify-center gap-2 text-xs font-semibold text-white btn-neon rounded-xl py-2.5 transition">
@@ -258,6 +345,20 @@
             else icon.classList.replace('fa-sun', 'fa-moon');
         };
 
+        function toggleUI(id, show) { document.getElementById(id).classList.toggle('hidden', !show); }
+
+        let currentMode = 'quick';
+        function switchMode(mode) {
+            currentMode = mode;
+            document.getElementById('modeQuickPanel').classList.toggle('hidden', mode !== 'quick');
+            document.getElementById('modeFieldMapperPanel').classList.toggle('hidden', mode !== 'fieldmapper');
+
+            const active = "flex-1 px-3 py-2 text-xs font-semibold rounded-lg bg-white shadow-sm text-slate-800 dark:bg-white/10 dark:text-white transition";
+            const inactive = "flex-1 px-3 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-white transition";
+            document.getElementById('mode-quick').className = mode === 'quick' ? active : inactive;
+            document.getElementById('mode-fieldmapper').className = mode === 'fieldmapper' ? active : inactive;
+        }
+
         // faker.random.alphaNumeric() on this Faker CDN build ignores its length argument
         // and always returns a single character - generate fixed-length codes ourselves instead.
         function randomAlphaNumeric(len) {
@@ -293,7 +394,7 @@
                 if (file.name.toLowerCase().endsWith('.xml')) fmt.value = 'xml';
                 else if (file.name.toLowerCase().endsWith('.csv')) fmt.value = 'csv';
                 else fmt.value = 'json';
-                detectFields();
+                if (currentMode === 'fieldmapper') detectFields();
             }
         });
 
@@ -312,6 +413,69 @@
                 if (char === '@') return String.fromCharCode(65 + Math.floor(Math.random() * 26));
                 return char;
             }).join('');
+        }
+
+        // Fixed modifyObject using safe string split instead of .firstName()
+        function modifyObject(obj, opts, orderIdMap, isItemArray = false) {
+            for (let key in obj) {
+                if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    modifyObject(obj[key], opts, orderIdMap, isItemArray || key.toLowerCase().includes('item'));
+                } else {
+                    let k = key.toLowerCase();
+                    let origVal = obj[key] ? obj[key].toString() : "";
+
+                    if (opts.rCustomer) {
+                        // Safe extraction to prevent Faker CDN bug "firstName is not a function"
+                        if (k.includes('first') && k.includes('name')) {
+                            obj[key] = faker.name.findName().split(' ')[0];
+                        }
+                        else if (k.includes('last') && k.includes('name')) {
+                            let parts = faker.name.findName().split(' ');
+                            obj[key] = parts.length > 1 ? parts[1] : parts[0];
+                        }
+                        else if (k.includes('customer') || k.includes('name') || k.includes('ordered by') || k.includes('attn')) {
+                            obj[key] = faker.company.companyName();
+                        }
+
+                        if (k.includes('address') || k.includes('street')) {
+                            if (!k.includes('city') && !k.includes('state') && !k.includes('zip') && !k.includes('postal')) obj[key] = faker.address.streetAddress();
+                        }
+                    }
+
+                    if (opts.rPhone) {
+                        if (k.includes('phone') || k.includes('mobile')) obj[key] = faker.phone.phoneNumberFormat();
+                    }
+
+                    if (opts.rEmail) {
+                        if (k.includes('email') || k.includes('mail')) obj[key] = faker.internet.email();
+                    }
+
+                    if (opts.rItems && isItemArray) {
+                        if (k.includes('desc') || k.includes('product')) obj[key] = faker.commerce.productName();
+                        if (k.includes('sku') || k.includes('code')) obj[key] = randomAlphaNumeric(10);
+                    }
+
+                    if ((k.includes('order') || k === 'id' || k.includes('number') || k.includes('#')) &&
+                        !k.includes('account') && !k.includes('stop') && !k.includes('qty') &&
+                        !k.includes('location') && !k.includes('item') && !k.includes('billing') && !k.includes('via') && !k.includes('phone') &&
+                        !k.includes('ordered by') && !k.includes('sku') && !k.includes('serial')) {
+
+                        if (origVal.trim() !== "") {
+                            if (!orderIdMap[origVal]) orderIdMap[origVal] = generateFormattedOrderId(opts.fmtOrder);
+                            obj[key] = orderIdMap[origVal];
+                        }
+                    }
+
+                    if (opts.useAcc && (k.includes('account') || k.includes('billing id'))) obj[key] = opts.valAcc;
+                    let isDeliveryTypeField = k === 'service_type' || k === 'delivery_type' || k === 'via' ||
+                        (k.includes('service') && k.includes('type')) || (k.includes('delivery') && k.includes('type')) || k.includes('ship via');
+                    if (opts.useDel && isDeliveryTypeField) obj[key] = opts.valDel;
+                    if (opts.useStatus && (k === 'status' || k === 'order_status')) obj[key] = opts.valStatus;
+                    let isRequestDateField = k.includes('date') && (k.includes('request') || k.includes('ready') || k.includes('schedule_before'));
+                    if (opts.useDate && (k.includes('date') || k.includes('ship') || k.includes('tw1')) && !isRequestDateField) obj[key] = formatMatchedDate(opts.valDate, origVal);
+                    if (opts.useReqDate && isRequestDateField) obj[key] = formatMatchedDate(opts.valReqDate, origVal);
+                }
+            }
         }
 
         // ---------------------------------------------------------------------------
@@ -473,13 +637,18 @@
             }
         }
 
-        function duplicateSmartly(baseData, count, actionsMap, fmtOrder) {
+        // Shared replication core used by both modes: finds the records array/object no matter
+        // how it's wrapped, and replays `count` full passes over ALL of it (not just the first
+        // element), so a real multi-record customer file is fully preserved and multiplied.
+        // `mutateRecord(record, orderIdMap)` is called once per record per pass to apply whichever
+        // mode's field logic is active.
+        function replicateRecords(baseData, count, mutateRecord) {
             function replicateArray(sourceArray) {
                 let out = [];
                 for (let i = 0; i < count; i++) {
                     let idMap = {};
                     let passClone = JSON.parse(JSON.stringify(sourceArray));
-                    passClone.forEach(rec => applyFieldActions(rec, actionsMap, idMap, '', fmtOrder));
+                    passClone.forEach(rec => mutateRecord(rec, idMap));
                     out.push(...passClone);
                 }
                 return out;
@@ -488,14 +657,13 @@
             let finalData = JSON.parse(JSON.stringify(baseData));
 
             if (Array.isArray(finalData)) {
-                return replicateArray(finalData);
+                return { finalData: replicateArray(finalData), container: null };
             }
 
             let container = findArrayContainer(finalData);
             if (container) {
                 container.parent[container.key] = replicateArray(container.parent[container.key]);
-                applyEnvelopeActions(finalData, container.rootKey, actionsMap);
-                return finalData;
+                return { finalData, container };
             }
 
             // No array anywhere (e.g. XML with a single repeated element collapsed to one object):
@@ -511,10 +679,21 @@
 
             if (parent) {
                 parent[key] = replicateArray([node]);
-                return finalData;
+                return { finalData, container: null };
             }
 
-            return replicateArray([baseData]);
+            return { finalData: replicateArray([baseData]), container: null };
+        }
+
+        function duplicateSmartlyQuick(baseData, count, opts) {
+            let { finalData } = replicateRecords(baseData, count, (rec, idMap) => modifyObject(rec, opts, idMap));
+            return finalData;
+        }
+
+        function duplicateSmartlyFieldMapper(baseData, count, actionsMap, fmtOrder) {
+            let { finalData, container } = replicateRecords(baseData, count, (rec, idMap) => applyFieldActions(rec, actionsMap, idMap, '', fmtOrder));
+            if (container) applyEnvelopeActions(finalData, container.rootKey, actionsMap);
+            return finalData;
         }
 
         // Renders the detected fields as a reviewable, editable list. Built with DOM APIs
@@ -769,7 +948,7 @@
                 }, null, 2);
             }
 
-            detectFields();
+            if (currentMode === 'fieldmapper') detectFields();
             generateData();
         }
 
@@ -782,16 +961,38 @@
 
             if (!raw) return alert("Source payload is required.");
 
-            // Auto-analyze on first Generate so the tool works out of the box with sensible
-            // defaults; power users can click Analyze first to review/edit before generating.
-            if (document.getElementById('fieldMapperList').classList.contains('hidden')) {
-                detectFields();
-            }
-            const actionsMap = readFieldActionsMap();
-
             try {
                 let baseData = parseRawInput(raw);
-                let finalData = duplicateSmartly(baseData, count, actionsMap, fmtOrder);
+                let finalData;
+
+                if (currentMode === 'fieldmapper') {
+                    // Auto-analyze on first Generate so the tool works out of the box with sensible
+                    // defaults; power users can click Analyze first to review/edit before generating.
+                    if (document.getElementById('fieldMapperList').classList.contains('hidden')) {
+                        detectFields();
+                    }
+                    const actionsMap = readFieldActionsMap();
+                    finalData = duplicateSmartlyFieldMapper(baseData, count, actionsMap, fmtOrder);
+                } else {
+                    const opts = {
+                        fmtOrder: fmtOrder,
+                        rCustomer: document.getElementById('randCustomer').checked,
+                        rPhone: document.getElementById('randPhone').checked,
+                        rEmail: document.getElementById('randEmail').checked,
+                        rItems: document.getElementById('randItems').checked,
+                        useAcc: document.getElementById('reqAccount').checked,
+                        valAcc: document.getElementById('valAccount').value,
+                        useDel: document.getElementById('reqDelivery').checked,
+                        valDel: document.getElementById('valDelivery').value,
+                        useStatus: document.getElementById('reqStatus').checked,
+                        valStatus: document.getElementById('valStatus').value,
+                        useDate: document.getElementById('reqDate').checked,
+                        valDate: document.getElementById('valDate').value,
+                        useReqDate: document.getElementById('reqRequestDate').checked,
+                        valReqDate: document.getElementById('valRequestDate').value
+                    };
+                    finalData = duplicateSmartlyQuick(baseData, count, opts);
+                }
 
                 if (outFormat === 'json') {
                     editor.value = JSON.stringify(finalData, null, 2);
